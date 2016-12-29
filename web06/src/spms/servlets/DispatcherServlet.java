@@ -26,36 +26,28 @@ public class DispatcherServlet extends HttpServlet {
     try {
     	Controller controller = null;
 	    Map<String, Object> model = new HashMap<String, Object>();	
-    	
-	    //model 안에 memberDao 주입
-    	ServletContext sc = this.getServletContext();
-    	model.put("memberDao",sc.getAttribute("memberDao"));	    
-    	
-	      if ("/member/list.do".equals(servletPath)) {
-	        controller = new MemberListController();
-	      } else if ("/member/add.do".equals(servletPath)) {
-	    	  controller = new MemberAddController();
-	        if (request.getParameter("email") != null) {
+	    ServletContext sc = this.getServletContext();
+	    //model 안에 memberDao 주입	    
+	    controller = (Controller)sc.getAttribute(servletPath);
+	    if ("/member/add.do".equals(servletPath)) {
+			if (request.getParameter("email") != null) {
 	        	model.put("member", new Member()
-	            .setEmail(request.getParameter("email"))
-	            .setPassword(request.getParameter("password"))
-	            .setName(request.getParameter("name")));
-	        }
-	      } else if ("/member/update.do".equals(servletPath)) {
-	    	  controller = new MemberUpdateController();
-	        if (request.getParameter("email") != null) {
+		            .setEmail(request.getParameter("email"))
+		            .setPassword(request.getParameter("password"))
+		            .setName(request.getParameter("name")));
+			}
+	    } else if ("/member/update.do".equals(servletPath)) {	    	  
+			if (request.getParameter("email") != null) {
 	        	model.put("member", new Member()
 	            .setNo(Integer.parseInt(request.getParameter("no")))
 	            .setEmail(request.getParameter("email"))
 	            .setName(request.getParameter("name")));
-	        }else if(request.getParameter("email") == null){
+			}else if(request.getParameter("email") == null){
 	        	model.put("no", Integer.parseInt(request.getParameter("no")));
-	        }
-	      } else if ("/member/delete.do".equals(servletPath)) {
-	    	  controller = new MemberDeleteController();
+			}
+	    } else if ("/member/delete.do".equals(servletPath)) {	    	 
 	    	  model.put("no", Integer.parseInt(request.getParameter("no")));
-	      } else if ("/auth/login.do".equals(servletPath)) {
-	    	  controller = new LogInController();
+	    } else if ("/auth/login.do".equals(servletPath)) {	    	  
 	    	  if (request.getParameter("email") != null) {
 	    		  if (request.getParameter("password") != null) {
 	    			  model.put("loginInfo", new Member()
@@ -64,11 +56,9 @@ public class DispatcherServlet extends HttpServlet {
 	    			  model.put("session", request.getSession());
 		    	  }
 	    	  }
-	      } else if ("/auth/logout.do".equals(servletPath)) {
-	    	  controller = new LogOutController();
+	      } else if ("/auth/logout.do".equals(servletPath)) {	    	 
 	    	  model.put("session", request.getSession());
 	      }
-	      
 	      
 	      //컨트롤로 호출을 통해 View 이름을 리턴받음
 	      String viewUrl = controller.execute(model);
